@@ -1,16 +1,7 @@
-import express from 'express';
-
-const app = express();
-
-app.get('/',(req, res)=>{
-    res.status(200).json({
-        success: true,
-        message: "Route active?"
-    })
-})
+import app from "./app";
 
 const PORT = 5000;
 
 app.listen(PORT, ()=>{
-    console.log('Server Active');
-});
+    console.log(`Server is running on localhost:${PORT}`);
+})
