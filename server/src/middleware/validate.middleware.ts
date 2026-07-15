@@ -6,8 +6,8 @@ const validate = (schema: ZodSchema)=>(req: Request, res: Response, next: NextFu
     if(!result.success){
         return res.status(400).json({
             success: false,
-            message: "Registration failed",
-            error: result.error.issues
+            message: "Validation failed",
+            errors: result.error.issues
         });
     }
 
