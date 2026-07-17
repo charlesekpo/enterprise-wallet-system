@@ -2,6 +2,8 @@ import type { RegisterBody, LoginBody} from "../schemas/auth.schema";
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
+import Wallet from "../models/wallet.model";
 
 export const registerUser = async(userData: RegisterBody)=>{
 
@@ -20,13 +22,33 @@ export const registerUser = async(userData: RegisterBody)=>{
         password: hashedPassword
     };
 
-    const newUser = await User.create(newUserData);
+    const session = await mongoose.startSession();
 
-    return {
+    session.startTransaction();
+
+    try{
+        const [newUser] = await User.create([newUserData], {session});
+
+        const [newWallet] = await Wallet.create([{
+            owner: newUser._id
+        }], {session});
+
+        await session.commitTransaction();
+
+        return {
         success: true,
         message: "Registration Successful",
         data: newUser
     };
+        
+    }catch(error){
+        await session.abortTransaction();
+        throw error;
+    }finally{
+        await session.endSession();
+    }
+
+    
 }
 
 export const loginUser = async(userData: LoginBody)=>{
