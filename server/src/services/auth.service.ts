@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Wallet from "../models/wallet.model";
+import AppError from "../utils/AppError";
 
 export const registerUser = async(userData: RegisterBody)=>{
 
@@ -12,7 +13,7 @@ export const registerUser = async(userData: RegisterBody)=>{
     });
 
     if(existingUser){
-        throw new Error('User already exist');
+        throw new AppError('User already exist', 409);
     }
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -29,16 +30,23 @@ export const registerUser = async(userData: RegisterBody)=>{
     try{
         const [newUser] = await User.create([newUserData], {session});
 
-        const [newWallet] = await Wallet.create([{
+        await Wallet.create([{
             owner: newUser._id
         }], {session});
 
         await session.commitTransaction();
 
+        const userWithoutPassword = {
+            _id: newUser._id,
+            email: newUser.email,
+            createdAt: newUser.createdAt,
+            updatedAt: newUser.updatedAt
+        }
+
         return {
         success: true,
         message: "Registration Successful",
-        data: newUser
+        data: userWithoutPassword
     };
         
     }catch(error){
