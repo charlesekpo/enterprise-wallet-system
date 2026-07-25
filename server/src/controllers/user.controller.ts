@@ -1,12 +1,11 @@
 import {Request, Response} from "express";
+import myProfile from "../services/user.service";
 
-const getProfile = (req: Request, res: Response)=>{
+const getProfile = async(req: Request, res: Response)=>{
 
-    res.status(200).json({
-        success: true,
-        message: 'Profile successfully retrieved',
-        data: req.user
-    });
+    const profile = await myProfile(req.user.id);
+
+    res.status(200).json(profile);
 }
 
 export default getProfile;

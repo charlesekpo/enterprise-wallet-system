@@ -4,11 +4,7 @@ import {getWallet} from "../services/wallet.service";
 const myWallet = async (req: Request, res: Response)=>{
     const wallet = await getWallet(req.user.id);
 
-    res.status(200).json({
-        success: true,
-        message: "Wallet retrieved successfully",
-        data: wallet
-    });
+    res.status(200).json(wallet);
 }
 
 export default myWallet;

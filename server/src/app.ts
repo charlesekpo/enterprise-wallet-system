@@ -4,7 +4,6 @@ import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import walletRoutes from "./routes/wallet.routes";
 import errorHandler from "./middleware/error.middleware";
-import "express-async-errors";
 
 const app = express();
 

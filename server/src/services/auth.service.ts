@@ -55,8 +55,7 @@ export const registerUser = async(userData: RegisterBody)=>{
     }finally{
         await session.endSession();
     }
-
-    
+   
 }
 
 export const loginUser = async(userData: LoginBody)=>{
