@@ -13,15 +13,17 @@ const walletSchema = new mongoose.Schema({
     },
     currency: {
         type: String,
+        enum: ["NGN","USD"],
         default: "NGN"
     },
     status: {
         type: String,
+        enum: ["ACTIVE","SUSPENDED","CLOSED"],
         default: "ACTIVE"
     }
 
 },{timestamps: true});
 
-const wallet = mongoose.model('Wallet', walletSchema);
+const Wallet = mongoose.model('Wallet', walletSchema);
 
-export default wallet;
+export default Wallet;

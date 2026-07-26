@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import { RegisterBody, LoginBody} from "../schemas/auth.schema";
 import {registerUser, loginUser} from "../services/auth.service";
 
-export const register =async (req: Request<{}, {}, RegisterBody>, res: Response)=>{
+export const register = async (req: Request<{}, {}, RegisterBody>, res: Response)=>{
 
     const result = await registerUser(req.body);
 
