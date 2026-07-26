@@ -1,9 +1,10 @@
 import Wallet from "../models/wallet.model";
-import type { DepositBody, WithdrawBody } from "../schemas/wallet.schema";
+import type { DepositBody, WithdrawBody, TransferBody } from "../schemas/wallet.schema";
 import AppError from "../utils/AppError";
 import mongoose from "mongoose";
 import Transaction from "../models/transaction.model";
 import {generateReference} from "../utils/reference";
+import User from "../models/user.model";
 
 export const getWallet = async (userId: string)=>{
     const walletDetails = await Wallet.findOne({
@@ -139,4 +140,108 @@ export const withdrawMoney = async(userId: string, withdrawData: WithdrawBody)=>
         await session.endSession();
     }
 
+}
+
+export const transferMoney = async(userId: string, transferData: TransferBody)=>{
+    const session = await mongoose.startSession();
+    await session.startTransaction();
+    try {
+
+        // 2. Find sender wallet
+        const senderWallet = await Wallet.findOne({
+            owner: userId
+        }).session(session);
+
+        if(!senderWallet){
+            throw new AppError("Sending wallet not found", 404);
+        };
+
+        // 3. Find recipient user
+        const recipient = await User.findOne({
+            email: transferData.email
+        }).session(session);
+
+        if(!recipient){
+            throw new AppError("User not found", 404);
+        };
+
+        // 4. Prevent self-transfer
+        if(userId === recipient._id.toString()){
+            throw new AppError("Self transfer is not allowed", 409);
+        }
+
+        // 5. Find recipient wallet
+        const recipientWallet = await Wallet.findOne({
+            owner: recipient._id
+        }).session(session);
+
+        if(!recipientWallet){
+            throw new AppError("Recipient wallet not found", 404);
+        }
+
+        // 6. Check both wallets are ACTIVE
+        if(senderWallet.status !== 'ACTIVE' || recipientWallet.status !== 'ACTIVE'){
+            throw new AppError("Wallet is not active", 400);
+        };
+
+        // 7. Check sufficient balance
+        const senderBalanceBefore = senderWallet.balance;
+        const recipientBalanceBefore = recipientWallet.balance;
+
+        if(transferData.amount > senderBalanceBefore){
+            throw new AppError("Insufficient funds", 400);
+        };
+
+        // 8. Debit sender
+        senderWallet.balance -= transferData.amount;
+
+        // 9. Credit recipient
+        recipientWallet.balance += transferData.amount;
+
+        // 10. Save both wallets
+        await senderWallet.save({session});
+        await recipientWallet.save({session});
+
+        // 11. Create sender transaction
+        await Transaction.create([{
+            reference: generateReference('TRO'),
+            wallet: senderWallet._id,
+            amount: transferData.amount,
+            type: "TRANSFER_OUT",
+            status: "SUCCESS",
+            balanceBefore: senderBalanceBefore,
+            balanceAfter: senderWallet.balance,
+            currency: senderWallet.currency,
+            description: `Sent money to ${transferData.email}`
+        }], {session});
+
+        // 12. Create recipient transaction
+        await Transaction.create([{
+            reference: generateReference('TRI'),
+            wallet: recipientWallet._id,
+            amount: transferData.amount,
+            type: "TRANSFER_IN",
+            status: "SUCCESS",
+            balanceBefore: recipientBalanceBefore,
+            balanceAfter: recipientWallet.balance,
+            currency: recipientWallet.currency,
+            description: "Received money"
+        }], {session});
+
+        // 13. Commit transaction
+        await session.commitTransaction();
+
+        // 14. Return success
+        return {
+            success: true,
+            message: "Transfer successful",
+            data: {senderWallet, recipient: recipient.email}
+        }
+
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    }finally{
+        await session.endSession();
+    }
 }
