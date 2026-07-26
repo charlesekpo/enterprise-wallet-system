@@ -146,6 +146,11 @@ export const transferMoney = async(userId: string, transferData: TransferBody)=>
     const session = await mongoose.startSession();
     await session.startTransaction();
     try {
+        // find the sender
+        const sender = await User.findById(userId).session(session);
+        if(!sender){
+            throw new AppError("Sender not found", 404);
+        }
 
         // 2. Find sender wallet
         const senderWallet = await Wallet.findOne({
@@ -158,7 +163,7 @@ export const transferMoney = async(userId: string, transferData: TransferBody)=>
 
         // 3. Find recipient user
         const recipient = await User.findOne({
-            email: transferData.email
+            email: transferData.recipientEmail
         }).session(session);
 
         if(!recipient){
@@ -180,8 +185,12 @@ export const transferMoney = async(userId: string, transferData: TransferBody)=>
         }
 
         // 6. Check both wallets are ACTIVE
-        if(senderWallet.status !== 'ACTIVE' || recipientWallet.status !== 'ACTIVE'){
-            throw new AppError("Wallet is not active", 400);
+        if(senderWallet.status !== 'ACTIVE'){
+            throw new AppError("Sender wallet is not active", 400);
+        };
+
+        if(recipientWallet.status !== 'ACTIVE'){
+            throw new AppError("Recipient wallet is not active", 400);
         };
 
         // 7. Check sufficient balance
@@ -212,7 +221,7 @@ export const transferMoney = async(userId: string, transferData: TransferBody)=>
             balanceBefore: senderBalanceBefore,
             balanceAfter: senderWallet.balance,
             currency: senderWallet.currency,
-            description: `Sent money to ${transferData.email}`
+            description: `Sent money to ${transferData.recipientEmail}`
         }], {session});
 
         // 12. Create recipient transaction
@@ -225,7 +234,7 @@ export const transferMoney = async(userId: string, transferData: TransferBody)=>
             balanceBefore: recipientBalanceBefore,
             balanceAfter: recipientWallet.balance,
             currency: recipientWallet.currency,
-            description: "Received money"
+            description: `Received money from ${sender.email}`
         }], {session});
 
         // 13. Commit transaction
