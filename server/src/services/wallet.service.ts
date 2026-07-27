@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import Transaction from "../models/transaction.model";
 import {generateReference} from "../utils/reference";
 import User from "../models/user.model";
+import {createTransactionRecord} from "../utils/createTransaction";
 
 export const getWallet = async (userId: string)=>{
     const walletDetails = await Wallet.findOne({
@@ -42,17 +43,17 @@ export const depositMoney = async(userId: string, depositData: DepositBody) => {
 
         const reference = generateReference("DEP");
 
-        await Transaction.create([{
-            reference,
-            wallet: wallet._id,
-            status: "SUCCESS",
-            type: "DEPOSIT",
+        await createTransactionRecord({
+            referencePrefix: "DEP",
             amount: depositData.amount,
+            wallet: wallet._id,
+            type: "DEPOSIT",
             balanceBefore,
             balanceAfter: wallet.balance,
             currency: wallet.currency,
-            description: "Wallet Deposit"
-        }], {session}); 
+            description: "Wallet Deposit",
+            session
+        });
 
         await session.commitTransaction();
 
@@ -109,17 +110,18 @@ export const withdrawMoney = async(userId: string, withdrawData: WithdrawBody)=>
         const reference = generateReference("WDL");
 
         // create a transaction inside the same session
-        await Transaction.create([{
-            reference,
-            amount: withdrawData.amount,
-            wallet: wallet._id,
-            status: "SUCCESS",
-            type: "WITHDRAWAL",
-            balanceBefore, 
-            balanceAfter: wallet.balance,
-            currency: wallet.currency,
-            description: "Withdrawal made"
-        }], {session});
+      
+        await createTransactionRecord({
+            referencePrefix: 'WDL',
+                amount: withdrawData.amount,
+                wallet: wallet._id,
+                type: "WITHDRAWAL",
+                balanceBefore,
+                balanceAfter: wallet.balance,
+                currency: wallet.currency,
+                description: "Withdrawal made",
+                session
+        });
 
         //proceed to commit the entire process
         await session.commitTransaction();
@@ -146,7 +148,7 @@ export const transferMoney = async(userId: string, transferData: TransferBody)=>
     const session = await mongoose.startSession();
     await session.startTransaction();
     try {
-        // find the sender
+        // 1. find the sender
         const sender = await User.findById(userId).session(session);
         if(!sender){
             throw new AppError("Sender not found", 404);
@@ -212,30 +214,31 @@ export const transferMoney = async(userId: string, transferData: TransferBody)=>
         await recipientWallet.save({session});
 
         // 11. Create sender transaction
-        await Transaction.create([{
-            reference: generateReference('TRO'),
-            wallet: senderWallet._id,
-            amount: transferData.amount,
-            type: "TRANSFER_OUT",
-            status: "SUCCESS",
-            balanceBefore: senderBalanceBefore,
-            balanceAfter: senderWallet.balance,
-            currency: senderWallet.currency,
-            description: `Sent money to ${transferData.recipientEmail}`
-        }], {session});
+        await createTransactionRecord({
+            referencePrefix: 'TRO',
+                amount: transferData.amount,
+                wallet: senderWallet._id,
+                type: "TRANSFER_OUT",
+                balanceBefore: senderBalanceBefore,
+                balanceAfter: senderWallet.balance,
+                currency: senderWallet.currency,
+                description: `Sent money to ${transferData.recipientEmail}`,
+                session
+        });
 
         // 12. Create recipient transaction
-        await Transaction.create([{
-            reference: generateReference('TRI'),
-            wallet: recipientWallet._id,
-            amount: transferData.amount,
-            type: "TRANSFER_IN",
-            status: "SUCCESS",
-            balanceBefore: recipientBalanceBefore,
-            balanceAfter: recipientWallet.balance,
-            currency: recipientWallet.currency,
-            description: `Received money from ${sender.email}`
-        }], {session});
+      
+        await createTransactionRecord({
+            referencePrefix: 'TRI',
+                amount: transferData.amount,
+                wallet: recipientWallet._id,
+                type: "TRANSFER_IN",
+                balanceBefore: recipientBalanceBefore,
+                balanceAfter: recipientWallet.balance,
+                currency: recipientWallet.currency,
+                description: `Received money from ${sender.email}`,
+                session
+        });
 
         // 13. Commit transaction
         await session.commitTransaction();
