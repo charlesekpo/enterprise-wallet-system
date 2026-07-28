@@ -14,7 +14,7 @@ app.use(indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/wallet', walletRoutes);
-app.use('/api/transaction', transactionRoutes);
+app.use('/api/transactions', transactionRoutes);
 app.use(errorHandler);
 
 
