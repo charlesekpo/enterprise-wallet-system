@@ -55,3 +55,24 @@ export const transactions = async(userId: string, page: number, limit: number, t
             data: allTransactions
         };
 }
+
+export const getTransactionByReference = async(userId: string, reference: string) => {
+
+    const myWallet = await Wallet.findOne({owner: userId});
+
+    if(!myWallet){
+        throw new AppError('Wallet not found', 404);
+    };
+
+    const trx = await Transaction.findOne({wallet: myWallet._id, reference: reference});
+
+    if(!trx){
+        throw new AppError('Transaction not found', 404);
+    }
+
+    return {
+        success: true,
+        message: "Transaction retrieved successfully",
+        data: trx
+    };
+}
