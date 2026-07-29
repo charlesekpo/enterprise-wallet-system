@@ -12,7 +12,10 @@ export const allTransactions = async(req: Request, res: Response)=>{
     limit = Math.max(1, limit);
     limit = Math.min(limit, 100);
 
+    const type = req.query.type as string || undefined;
+    const status = req.query.status as string || undefined;
+
     // call the service and pass the userId
-    const getTransactions = await transactions(req.user.id, page, limit);
+    const getTransactions = await transactions(req.user.id, page, limit, type, status);
     res.status(200).json(getTransactions);
 }

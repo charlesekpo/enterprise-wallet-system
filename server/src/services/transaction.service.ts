@@ -1,8 +1,9 @@
 import Wallet from "../models/wallet.model";
 import AppError from "../utils/AppError";
 import Transaction from "../models/transaction.model";
+import mongoose from "mongoose";
 
-export const transactions = async(userId: string, page: number, limit: number)=>{
+export const transactions = async(userId: string, page: number, limit: number, type?: string, status?: string)=>{
     const transactionWallet = await Wallet.findOne({owner: userId});
     if(!transactionWallet){
         throw new AppError('Wallet not found', 404);
@@ -18,10 +19,31 @@ export const transactions = async(userId: string, page: number, limit: number)=>
     // simple math to get the pages, based on the limit selected
     const paginationPages = Math.ceil(totalTransactions / limit);
 
-    // get all transactions
-    const allTransactions = await Transaction.find({
+    const query: Record<string, unknown> = {
         wallet: transactionWallet._id
-    }).sort({createdAt: -1}).skip(skip).limit(limit);
+    }
+
+    const statusCheck = ['SUCCESS','FAILED','PENDING','REVERSED'];
+    const typeCheck = ['DEPOSIT','WITHDRAWAL','TRANSFER_IN','TRANSFER_OUT'];
+
+     if(type && !typeCheck.includes(type)){
+        throw new AppError("Invalid query status",400);
+    }
+
+    if(type){
+        query.type = type;
+    };
+
+    if(status && !statusCheck.includes(status)){
+        throw new AppError("Invalid query status",400);
+    }
+
+    if(status){
+        query.status = status;
+    }
+
+    // get all transactions
+    const allTransactions = await Transaction.find(query).sort({createdAt: -1}).skip(skip).limit(limit);
 
     return {
             success: true,
