@@ -64,7 +64,9 @@ export const getTransactionByReference = async(userId: string, reference: string
         throw new AppError('Wallet not found', 404);
     };
 
-    const trx = await Transaction.findOne({wallet: myWallet._id, reference: reference});
+    const trx = await Transaction.findOne({wallet: myWallet._id, reference: reference})
+    .populate({path: "wallet", select: "currency owner", 
+        populate:{ path:"owner", select: "email"}});
 
     if(!trx){
         throw new AppError('Transaction not found', 404);
