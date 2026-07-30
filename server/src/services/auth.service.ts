@@ -1,10 +1,12 @@
-import type { RegisterBody, LoginBody, ChangePasswordBody} from "../schemas/auth.schema";
+import type { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody} from "../schemas/auth.schema";
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Wallet from "../models/wallet.model";
 import AppError from "../utils/AppError";
+import PasswordReset from "../models/password-reset.model";
+import crypto from "crypto";
 
 export const registerUser = async(userData: RegisterBody)=>{
 
@@ -117,4 +119,40 @@ export const changeMyPassword = async(userId: string, changePasswordData: Change
         success: true,
         message: "Password changed successfully"
     };
+}
+
+export const forgotPassword = async(forgotPasswordData: ForgotPasswordBody)=>{
+    const user = await User.findOne({email: forgotPasswordData.email});
+    if(!user){
+
+        //to avoid attacker guessing, user enumeration.
+        return {
+            success: true,
+            message: "If an account exists, a reset link has been sent."
+        };
+    };
+
+    const existingToken = await PasswordReset.findOne({ user: user._id});
+    if(existingToken && existingToken.expiresAt > new Date()){
+        // still valid token
+        return existingToken.token;
+    };
+
+    await PasswordReset.deleteMany({ user: user._id});
+
+    const token = crypto.randomBytes(32).toString('hex');
+
+    await PasswordReset.create({
+        user: user._id,
+        token,
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000)
+    });
+
+    // for now, simply returning token in response. Should be sent to email
+    return {
+        success: true,
+        message: "Token generated",
+        token
+    };
+ 
 }

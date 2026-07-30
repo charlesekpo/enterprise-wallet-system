@@ -17,8 +17,21 @@ export const changePasswordSchema = z.object({
     newPassword: passwordLength
 });
 
+export const forgotPasswordSchema =z.object({
+    email: z.email()
+});
+
+export const resetPasswordSchema = z.object({
+    newPassword: passwordLength,
+    token: z.string()
+});
+
 export type ChangePasswordBody = z.infer<typeof changePasswordSchema>;
 
 export type LoginBody = z.infer<typeof loginSchema>;
 
 export type RegisterBody = z.infer<typeof registerSchema>;
+
+export type ForgotPasswordBody = z.infer<typeof forgotPasswordSchema>;
+
+export type ResetPasswordBody = z.infer<typeof resetPasswordSchema>;
