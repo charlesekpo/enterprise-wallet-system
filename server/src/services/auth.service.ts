@@ -1,4 +1,4 @@
-import type { RegisterBody, LoginBody} from "../schemas/auth.schema";
+import type { RegisterBody, LoginBody, ChangePasswordBody} from "../schemas/auth.schema";
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -63,13 +63,13 @@ export const loginUser = async(userData: LoginBody)=>{
     const user = await User.findOne({email: userData.email});
 
     if(!user){
-        throw new Error("Invalid username or password");
+        throw new AppError("Invalid username or password", 401);
     }
 
     const isPasswordCorrect = await bcrypt.compare(userData.password, user.password);
 
     if(!isPasswordCorrect){
-        throw new Error("Invalid username or password");
+        throw new AppError("Invalid username or password", 401);
     }
 
     const token = await jwt.sign({id: user._id}, process.env.JWT_SECRET!, {expiresIn: '1d'});
@@ -85,4 +85,36 @@ export const loginUser = async(userData: LoginBody)=>{
         }
     }
     
+}
+
+export const changeMyPassword = async(userId: string, changePasswordData: ChangePasswordBody)=>{
+    // to get user from req.user.id
+    const user = await User.findById(userId);
+
+    if(!user){
+        throw new AppError('User not found', 404);
+    }
+
+    const comparePassword = await bcrypt.compare(changePasswordData.currentPassword, user.password);
+
+    if(!comparePassword){
+        throw new AppError('Invalid password', 400);
+    }
+
+    const samePassword = await bcrypt.compare(changePasswordData.newPassword, user.password);
+
+    if(samePassword){
+        throw new AppError('New password cannot be the same as current password', 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(changePasswordData.newPassword, 10);
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    return {
+        success: true,
+        message: "Password changed successfully"
+    };
 }

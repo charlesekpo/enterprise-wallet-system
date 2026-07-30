@@ -12,6 +12,13 @@ export const loginSchema = z.object({
     password: passwordLength
 });
 
+export const changePasswordSchema = z.object({
+    currentPassword: passwordLength,
+    newPassword: passwordLength
+});
+
+export type ChangePasswordBody = z.infer<typeof changePasswordSchema>;
+
 export type LoginBody = z.infer<typeof loginSchema>;
 
 export type RegisterBody = z.infer<typeof registerSchema>;
