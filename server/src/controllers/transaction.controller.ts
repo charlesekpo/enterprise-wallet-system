@@ -8,11 +8,6 @@ export const allTransactions = async(req: Request, res: Response)=>{
 
     let limit = Number(req.query.limit) || 5;
 
-    page = Math.min(page, 100);
-    page = Math.max(1, page);
-    limit = Math.max(1, limit);
-    limit = Math.min(limit, 100);
-
     const type = req.query.type as string || undefined;
     const status = req.query.status as string || undefined;
 
