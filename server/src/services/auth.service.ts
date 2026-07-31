@@ -1,4 +1,4 @@
-import type { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody} from "../schemas/auth.schema";
+import type { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody, ResetPasswordBody} from "../schemas/auth.schema";
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -155,4 +155,47 @@ export const forgotPassword = async(forgotPasswordData: ForgotPasswordBody)=>{
         token
     };
  
+}
+
+export const resetPassword = async(resetPasswordData: ResetPasswordBody)=>{
+    // find the token in your token table where the request body = the token
+    const resetToken = await PasswordReset.findOne({ token: resetPasswordData.token});
+    if(!resetToken){
+        throw new AppError('Invalid token', 401);
+    };
+    // check if the token is expired
+    if(resetToken.expiresAt < new Date()){
+        throw new AppError('Token is expired', 401);
+    }
+    // find the user from the db
+    const user = await User.findById(resetToken.user);
+    if(!user){
+        throw new AppError('User not found', 404);
+    };
+
+    // prevent same password
+    const samePassword = await bcrypt.compare(resetPasswordData.newPassword, user.password);
+    if(samePassword){
+        return {
+            success: true,
+            message: "Same password as previous"
+        };
+    };
+
+    // hash the password
+    const hashedPassword = await bcrypt.hash(resetPasswordData.newPassword, 10);
+  
+    // save new password
+    user.password = hashedPassword;
+
+    await user.save();
+    // remember to always delete the reset token
+
+    const deleteToken = await PasswordReset.deleteOne({_id: resetToken._id});
+
+    // return message
+    return {
+        success: true,
+        message: "Password updated successfully"
+    }
 }

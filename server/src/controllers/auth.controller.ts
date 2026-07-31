@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
-import { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody} from "../schemas/auth.schema";
-import {registerUser, loginUser, changeMyPassword, forgotPassword} from "../services/auth.service";
+import { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody, ResetPasswordBody} from "../schemas/auth.schema";
+import {registerUser, loginUser, changeMyPassword, forgotPassword, resetPassword} from "../services/auth.service";
 
 export const register = async (req: Request<{}, {}, RegisterBody>, res: Response)=>{
 
@@ -23,4 +23,9 @@ export const changePassword = async(req: Request<{}, {}, ChangePasswordBody>, re
 export const forgetMyPassword = async(req: Request<{}, {}, ForgotPasswordBody>, res: Response)=>{
     const createToken = await forgotPassword(req.body);
     res.status(200).json(createToken);
+}
+
+export const resetMyPassword = async(req: Request<{}, {}, ResetPasswordBody>, res: Response)=>{
+    const resetPass = await resetPassword(req.body);
+    res.status(200).json(resetPass);
 }

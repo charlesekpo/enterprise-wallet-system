@@ -23,7 +23,7 @@ export const forgotPasswordSchema =z.object({
 
 export const resetPasswordSchema = z.object({
     newPassword: passwordLength,
-    token: z.string()
+    token: z.string().min(1)
 });
 
 export type ChangePasswordBody = z.infer<typeof changePasswordSchema>;
