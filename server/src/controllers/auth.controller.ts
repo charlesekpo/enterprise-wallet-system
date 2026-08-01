@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
-import { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody, ResetPasswordBody} from "../schemas/auth.schema";
-import {registerUser, loginUser, changeMyPassword, forgotPassword, resetPassword} from "../services/auth.service";
+import { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody, ResetPasswordBody, RefreshTokenBody} from "../schemas/auth.schema";
+import {registerUser, loginUser, changeMyPassword, forgotPassword, resetPassword, refreshAccessToken} from "../services/auth.service";
 
 export const register = async (req: Request<{}, {}, RegisterBody>, res: Response)=>{
 
@@ -11,7 +11,7 @@ export const register = async (req: Request<{}, {}, RegisterBody>, res: Response
 };
 
 export const login = async(req: Request<{}, {}, LoginBody>, res:Response)=>{
-    const result = await loginUser(req.body);
+    const result = await loginUser(req.body, req.get('user-agent') || '', req.ip || '');
     return res.status(200).json(result);
 };
 
@@ -28,4 +28,9 @@ export const forgetMyPassword = async(req: Request<{}, {}, ForgotPasswordBody>, 
 export const resetMyPassword = async(req: Request<{}, {}, ResetPasswordBody>, res: Response)=>{
     const resetPass = await resetPassword(req.body);
     res.status(200).json(resetPass);
+}
+
+export const refreshMyToken = async(req: Request<{}, {}, RefreshTokenBody>, res: Response)=>{
+    const refToken = await refreshAccessToken(req.body);
+    res.status(200).json(refToken);
 }

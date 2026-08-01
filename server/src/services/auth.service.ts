@@ -1,4 +1,4 @@
-import type { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody, ResetPasswordBody} from "../schemas/auth.schema";
+import type { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody, ResetPasswordBody, RefreshTokenBody} from "../schemas/auth.schema";
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -7,6 +7,8 @@ import Wallet from "../models/wallet.model";
 import AppError from "../utils/AppError";
 import PasswordReset from "../models/password-reset.model";
 import crypto from "crypto";
+import generateRefreshToken from "../utils/generateRefreshToken";
+import RefreshToken from "../models/refreshToken.model";
 
 export const registerUser = async(userData: RegisterBody)=>{
 
@@ -60,7 +62,7 @@ export const registerUser = async(userData: RegisterBody)=>{
    
 }
 
-export const loginUser = async(userData: LoginBody)=>{
+export const loginUser = async(userData: LoginBody, userAgent: string, ipAddress: string)=>{
 
     const user = await User.findOne({email: userData.email});
 
@@ -74,7 +76,17 @@ export const loginUser = async(userData: LoginBody)=>{
         throw new AppError("Invalid username or password", 401);
     }
 
-    const token = await jwt.sign({id: user._id}, process.env.JWT_SECRET!, {expiresIn: '1d'});
+    const accessToken = await jwt.sign({id: user._id}, process.env.JWT_SECRET!, {expiresIn: '15m'});
+
+    const refreshToken = generateRefreshToken();
+
+    await RefreshToken.create({
+        user: user._id,
+        token: refreshToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        userAgent,
+        ipAddress
+    });
 
     const {password, ...userDataWithoutPassword} = user.toObject();
 
@@ -82,7 +94,8 @@ export const loginUser = async(userData: LoginBody)=>{
         success: true,
         message: "Login successfully",        
         data: {
-            token,
+            accessToken,
+            refreshToken,
             user:userDataWithoutPassword
         }
     }
@@ -198,4 +211,43 @@ export const resetPassword = async(resetPasswordData: ResetPasswordBody)=>{
         success: true,
         message: "Password updated successfully"
     }
+}
+
+export const refreshAccessToken = async(refreshTokenData: RefreshTokenBody)=>{
+    
+    const refToken = await RefreshToken.findOne({
+        token: refreshTokenData.refreshToken
+    });
+
+    if(!refToken){
+        throw new AppError('Unauthorized', 401);
+    };
+
+    // check if the refresh token is expired
+    if(refToken.expiresAt < new Date()){
+        await refToken.deleteOne();
+        throw new AppError('Unauthorized', 401);
+    };
+
+    const user = await User.findById(refToken.user);
+
+    if(!user){
+        await refToken.deleteOne();
+        throw new AppError('User not found', 404);
+    };
+
+    const accessToken = jwt.sign(
+        {id: user._id},
+        process.env.JWT_SECRET!,
+        {expiresIn: '15m'}
+    );
+
+    return {
+        success: true,
+        message: 'Access token refreshed',
+        data: {
+            accessToken: accessToken
+        }
+    }
+    
 }

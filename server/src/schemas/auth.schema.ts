@@ -26,6 +26,10 @@ export const resetPasswordSchema = z.object({
     token: z.string().min(1)
 });
 
+export const refreshTokenSchema = z.object({
+    refreshToken: z.string().min(1)
+});
+
 export type ChangePasswordBody = z.infer<typeof changePasswordSchema>;
 
 export type LoginBody = z.infer<typeof loginSchema>;
@@ -35,3 +39,5 @@ export type RegisterBody = z.infer<typeof registerSchema>;
 export type ForgotPasswordBody = z.infer<typeof forgotPasswordSchema>;
 
 export type ResetPasswordBody = z.infer<typeof resetPasswordSchema>;
+
+export type RefreshTokenBody = z.infer<typeof refreshTokenSchema>;
