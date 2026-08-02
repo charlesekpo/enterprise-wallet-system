@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import {Roles} from "../types/role.type";
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -12,6 +13,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
         // select: false
+    },
+    role:{
+        type: String,
+        enum: Object.values(Roles),
+        default: Roles.USER
     }
 },{
     timestamps: true

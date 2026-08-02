@@ -76,7 +76,7 @@ export const loginUser = async(userData: LoginBody, userAgent: string, ipAddress
         throw new AppError("Invalid username or password", 401);
     }
 
-    const accessToken = await jwt.sign({id: user._id}, process.env.JWT_SECRET!, {expiresIn: '15m'});
+    const accessToken = await jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET!, {expiresIn: '15m'});
 
     const refreshToken = generateRefreshToken();
 
@@ -237,7 +237,7 @@ export const refreshAccessToken = async(refreshTokenData: RefreshTokenBody)=>{
     };
 
     const accessToken = jwt.sign(
-        {id: user._id},
+        {id: user._id, role: user.role},
         process.env.JWT_SECRET!,
         {expiresIn: '15m'}
     );
