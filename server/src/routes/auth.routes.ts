@@ -1,5 +1,5 @@
 import {Router} from "express";
-import {login, register, changePassword, forgetMyPassword, resetMyPassword, refreshMyToken} from "../controllers/auth.controller";
+import {login, register, changePassword, forgetMyPassword, resetMyPassword, refreshMyToken, myLogout} from "../controllers/auth.controller";
 import validate from "../middleware/validate.middleware";
 import {registerSchema, loginSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema, refreshTokenSchema} from "../schemas/auth.schema";
 import authenticate from "../middleware/auth.middleware";
@@ -17,5 +17,7 @@ router.post('/forgot-password', validate(forgotPasswordSchema), forgetMyPassword
 router.post('/reset-password', validate(resetPasswordSchema), resetMyPassword);
 
 router.post('/refresh-token',validate(refreshTokenSchema), refreshMyToken);
+
+router.post('/logout',validate(refreshTokenSchema), myLogout);
 
 export default router;

@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody, ResetPasswordBody, RefreshTokenBody} from "../schemas/auth.schema";
-import {registerUser, loginUser, changeMyPassword, forgotPassword, resetPassword, refreshAccessToken} from "../services/auth.service";
+import {registerUser, loginUser, changeMyPassword, forgotPassword, resetPassword, refreshAccessToken, logout} from "../services/auth.service";
 
 export const register = async (req: Request<{}, {}, RegisterBody>, res: Response)=>{
 
@@ -33,4 +33,9 @@ export const resetMyPassword = async(req: Request<{}, {}, ResetPasswordBody>, re
 export const refreshMyToken = async(req: Request<{}, {}, RefreshTokenBody>, res: Response)=>{
     const refToken = await refreshAccessToken(req.body);
     res.status(200).json(refToken);
+}
+
+export const myLogout = async(req: Request<{}, {}, RefreshTokenBody>, res: Response)=>{
+    const logoutReq = await logout(req.body);
+    res.status(200).json(logoutReq);
 }
