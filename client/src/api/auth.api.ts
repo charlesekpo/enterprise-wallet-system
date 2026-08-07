@@ -1,3 +1,4 @@
+import type { LoginResponse } from "../types/auth";
 import api from "./axios";
 
 type LoginCredentials = {
@@ -6,5 +7,5 @@ type LoginCredentials = {
 };
 
 export const loginUser = (credentials: LoginCredentials) =>{
-    return api.post('/auth/login', credentials);
-}
+    return api.post<LoginResponse>('/auth/login', credentials);
+};

@@ -10,7 +10,10 @@ import transactionRoutes from "./routes/transaction.routes";
 const app = express();
 
 app.use(express.json());
-app.use(cors({origin: "http://localhost:5173"}));
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true // so this origin should be allowed to send cookie
+}));
 app.use(indexRoutes);
 
 app.use('/auth', authRoutes);

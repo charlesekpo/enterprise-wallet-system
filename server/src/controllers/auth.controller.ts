@@ -12,7 +12,17 @@ export const register = async (req: Request<{}, {}, RegisterBody>, res: Response
 
 export const login = async(req: Request<{}, {}, LoginBody>, res:Response)=>{
     const result = await loginUser(req.body, req.get('user-agent') || '', req.ip || '');
-    return res.status(200).json(result);
+    const{data, ...rest} = result;
+    const{refreshToken, ...loginData} = data;
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production'
+    });
+    return res.status(200).json({
+        ...rest,
+        data: loginData
+    });
 };
 
 export const changePassword = async(req: Request<{}, {}, ChangePasswordBody>, res: Response)=>{
