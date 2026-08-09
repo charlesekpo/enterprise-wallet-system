@@ -16,7 +16,7 @@ router.post('/forgot-password', validate(forgotPasswordSchema), forgetMyPassword
 
 router.post('/reset-password', validate(resetPasswordSchema), resetMyPassword);
 
-router.post('/refresh-token',validate(refreshTokenSchema), refreshMyToken);
+router.post('/refresh-token', refreshMyToken);
 
 router.post('/logout',validate(refreshTokenSchema), myLogout);
 

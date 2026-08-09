@@ -1,17 +1,22 @@
 import {Link, useNavigate} from "react-router-dom";
-import {useState} from "react";
+import {useState } from "react";
 import {loginUser} from "../api/auth.api";
+import {useAuth} from "../context/AuthContext";
 
 function Login(){
 
     const[email, setEmail] = useState('');
     const[password, setPassword] = useState('');
+    const{setUser, setAccessToken} = useAuth();
 
     const navigate = useNavigate();
     const handleSubmit = async(event: React.FormEvent<HTMLFormElement>)=>{
         event.preventDefault();
         const response = await loginUser({email, password});
-        console.log(response.data);
+        const{accessToken, user} = response.data.data;
+        setUser(user);
+        setAccessToken(accessToken);
+        navigate('/dashboard');
     }
     return (
         <form onSubmit={handleSubmit}>

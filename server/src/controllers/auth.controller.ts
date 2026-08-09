@@ -1,4 +1,5 @@
 import {Request, Response} from "express";
+import AppError from "../utils/AppError";;
 import { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody, ResetPasswordBody, RefreshTokenBody} from "../schemas/auth.schema";
 import {registerUser, loginUser, changeMyPassword, forgotPassword, resetPassword, refreshAccessToken, logout} from "../services/auth.service";
 
@@ -40,8 +41,13 @@ export const resetMyPassword = async(req: Request<{}, {}, ResetPasswordBody>, re
     res.status(200).json(resetPass);
 }
 
-export const refreshMyToken = async(req: Request<{}, {}, RefreshTokenBody>, res: Response)=>{
-    const refToken = await refreshAccessToken(req.body);
+export const refreshMyToken = async(req: Request, res: Response)=>{
+    const refreshToken = req.cookies.refreshToken;
+    if(!refreshToken){
+        throw new AppError('Unauthorized', 401);
+    }
+
+    const refToken = await refreshAccessToken(req.cookies.refreshToken);
     res.status(200).json(refToken);
 }
 

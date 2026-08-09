@@ -213,10 +213,10 @@ export const resetPassword = async(resetPasswordData: ResetPasswordBody)=>{
     }
 }
 
-export const refreshAccessToken = async(refreshTokenData: RefreshTokenBody)=>{
+export const refreshAccessToken = async(refreshToken: string)=>{
     
     const refToken = await RefreshToken.findOne({
-        token: refreshTokenData.refreshToken
+        token: refreshToken
     });
 
     if(!refToken){
