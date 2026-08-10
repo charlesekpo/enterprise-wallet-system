@@ -1,7 +1,8 @@
 import type { AuthUser } from "../types/auth";
 import {createContext, useContext, useState, useEffect, type ReactNode} from "react";
-import {setApiAccessToken} from "../api/axios";
+import {setApiAccessToken, setAuthTokenUpdater} from "../api/axios";
 
+// Auth context type
 interface AuthContextType {
     accessToken: string | null,
     user: AuthUser | null,
@@ -9,19 +10,28 @@ interface AuthContextType {
     setUser: (user: AuthUser | null) => void
 }
 
+// create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// provider props
 interface AuthProviderProps{
     children: ReactNode
 }
 
+// auth provider
 export function AuthProvider ({children}: AuthProviderProps){
     const[accessToken, setAccessToken] = useState<string | null>(null);
     const[user, setUser] = useState<AuthUser | null>(null);
 
+    // React to Axios
     useEffect(()=>{
         setApiAccessToken(accessToken);
     },[accessToken]);
+
+    // Axios to React
+    useEffect(()=>{
+        setAuthTokenUpdater(setAccessToken);
+    },[]);
 
     return (<AuthContext.Provider
         value={{accessToken, user, setAccessToken, setUser}}
@@ -30,6 +40,7 @@ export function AuthProvider ({children}: AuthProviderProps){
     </AuthContext.Provider>);
 };
 
+// uesAuth hook
 export function useAuth(){
     const context = useContext(AuthContext);
 
