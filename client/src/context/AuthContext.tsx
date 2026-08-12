@@ -7,7 +7,8 @@ interface AuthContextType {
     accessToken: string | null,
     user: AuthUser | null,
     setAccessToken: (token: string | null) => void,
-    setUser: (user: AuthUser | null) => void
+    setUser: (user: AuthUser | null) => void,
+    logout: ()=> void
 }
 
 // create the context
@@ -23,6 +24,11 @@ export function AuthProvider ({children}: AuthProviderProps){
     const[accessToken, setAccessToken] = useState<string | null>(null);
     const[user, setUser] = useState<AuthUser | null>(null);
 
+    const logout =()=>{
+        setAccessToken(null);
+        setUser(null);
+    }
+
     // React to Axios
     useEffect(()=>{
         setApiAccessToken(accessToken);
@@ -34,7 +40,7 @@ export function AuthProvider ({children}: AuthProviderProps){
     },[]);
 
     return (<AuthContext.Provider
-        value={{accessToken, user, setAccessToken, setUser}}
+        value={{accessToken, user, setAccessToken, setUser, logout}}
     >
        {children} 
     </AuthContext.Provider>);

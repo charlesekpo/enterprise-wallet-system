@@ -8,6 +8,9 @@ const api = axios.create({
 // Axio's current acces token
 let accessToken: string | null = null;
 
+//Tracks an ongoing refresh
+let refreshPromise: Promise<string> | null = null;
+
 // React -> Axios
 // React calls this whenever its accessToken changes
 export const setApiAccessToken = (token: string | null)=>{
@@ -48,19 +51,44 @@ api.interceptors.response.use(
             throw error;
         }
 
-        // Ask backend for new access token
-        const response = await api.post('/auth/refresh-token');
-
-        // extract the new access token
-        const newAccessToken = response.data.data.accessToken;
-
-        // update Axios copy of the access token
-        accessToken = newAccessToken;
-
-        // also update React's copy of the access token
-        if(updateAuthToken){
-            updateAuthToken(newAccessToken);
+        if(error.config?.url === '/auth/refresh-token'){
+            throw error;
         }
+
+        if(!refreshPromise){
+
+            // Ask backend for new access token
+            refreshPromise = api
+            .post('/auth/refresh-token')
+            .then((response)=>{
+
+                // extract the new access token
+                const newAccessToken = response.data.data.accessToken;
+
+                // update Axios copy of the access token
+                accessToken = newAccessToken;
+
+                // also update React's copy of the access token
+                if(updateAuthToken){
+                updateAuthToken(newAccessToken);
+
+                return newAccessToken;
+        }
+
+            }).catch((error)=>{
+                accessToken = null;
+                if(updateAuthToken){
+                updateAuthToken(newAccessToken);
+                }
+
+                throw error
+            })
+            .finally(()=>{
+                refreshPromise = null;
+            });
+        } 
+        
+        const newAccessToken = await refreshPromise;
 
         // get the request that originally failed
         const originalRequest = error.config;
