@@ -1,0 +1,62 @@
+.wallet-page {
+    max-width: 1000px;
+}
+
+.wallet-page h1 {
+    margin-bottom: 30px;
+    font-size: 32px;
+}
+
+
+/* Balance Card */
+
+.balance-card {
+    background: #111827;
+    color: white;
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 600px;
+    margin-bottom: 30px;
+}
+
+.balance-label {
+    margin: 0 0 10px;
+    font-size: 15px;
+    color: #cbd5e1;
+}
+
+.balance-card h2 {
+    margin: 0 0 20px;
+    font-size: 36px;
+}
+
+.balance-card p:last-child {
+    margin: 0;
+    color: #cbd5e1;
+}
+
+
+/* Wallet Information */
+
+.wallet-info {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 25px;
+    max-width: 600px;
+}
+
+.wallet-info h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.wallet-info p {
+    margin: 12px 0;
+    color: #4b5563;
+}
+
+.wallet-info strong {
+    color: #111827;
+}
