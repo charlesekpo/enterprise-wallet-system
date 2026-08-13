@@ -7,6 +7,7 @@ import Layout from "./components/Layout";
 import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
+import Transfer from "./pages/Transfer";
 
 function App() {
     return (
@@ -39,6 +40,11 @@ function App() {
                     <Route
                         path="/withdraw"
                         element={<Withdraw />}
+                    />
+
+                    <Route
+                        path="/transfer"
+                        element={<Transfer />}
                     />
 
                 </Route>
