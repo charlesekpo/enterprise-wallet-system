@@ -1,16 +1,19 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import "./Sidebar.css";
 
 function Sidebar() {
 
     const { logout } = useAuth();
 
     return (
-        <aside>
+        <aside className="sidebar">
 
-            <h2>Enterprise Wallet</h2>
+            <h2 className="sidebar-logo">
+                Enterprise Wallet
+            </h2>
 
-            <nav>
+            <nav className="sidebar-nav">
 
                 <Link to="/dashboard">
                     Dashboard
@@ -38,7 +41,10 @@ function Sidebar() {
 
             </nav>
 
-            <button onClick={logout}>
+            <button
+                className="logout-button"
+                onClick={logout}
+            >
                 Logout
             </button>
 

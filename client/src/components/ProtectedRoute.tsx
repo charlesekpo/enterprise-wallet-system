@@ -5,7 +5,10 @@ function ProtectedRoute() {
 
     const { user } = useAuth();
 
+    console.log("ProtectedRoute user:", user);
+
     if (!user) {
+        console.log("No user — redirecting to login");
         return <Navigate to="/login" replace />;
     }
 
