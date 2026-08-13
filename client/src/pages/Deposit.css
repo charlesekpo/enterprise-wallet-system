@@ -1,0 +1,96 @@
+.transaction-page {
+    max-width: 700px;
+}
+
+.transaction-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 35px;
+    max-width: 600px;
+}
+
+.transaction-card h1 {
+    margin: 0;
+    font-size: 32px;
+    color: #111827;
+}
+
+.transaction-description {
+    color: #6b7280;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #111827;
+}
+
+.amount-input {
+    display: flex;
+    align-items: center;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+}
+
+.amount-input span {
+    padding: 0 15px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.amount-input input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 14px 12px;
+    font-size: 17px;
+}
+
+.transaction-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #111827;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.transaction-button:hover {
+    background: #1f2937;
+}
+
+.transaction-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.success-message {
+    margin-top: 20px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.error-message {
+    margin-top: 20px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #dc2626;
+}

@@ -5,6 +5,8 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import Wallet from "./pages/Wallet";
+import Deposit from "./pages/Deposit";
+import Withdraw from "./pages/Withdraw";
 
 function App() {
     return (
@@ -27,6 +29,16 @@ function App() {
                     <Route
                         path="/wallet"
                         element={<Wallet />}
+                    />
+
+                    <Route
+                        path="/deposit"
+                        element={<Deposit />}
+                    />
+
+                    <Route
+                        path="/withdraw"
+                        element={<Withdraw />}
                     />
 
                 </Route>
