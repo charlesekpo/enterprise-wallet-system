@@ -252,23 +252,8 @@ export const refreshAccessToken = async(refreshToken: string)=>{
     
 }
 
-export const logout = async(refreshTokenData: RefreshTokenBody)=>{
-
-    const refToken = await RefreshToken.findOne({token: refreshTokenData.refreshToken});
-
-    if(!refToken){
-        
-        // idempotency logout. since refresh token is missing, then it is logout
-        return{
-        success: true,
-        message: "Logged out successfully"
-    }
-    }
-
-    await refToken.deleteOne();
-
-    return{
-        success: true,
-        message: "Logged out successfully"
-    }
-}
+export const logoutUser = async (refreshToken: string) => {
+    await RefreshToken.deleteOne({
+        token: refreshToken
+    });
+};

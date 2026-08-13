@@ -1,6 +1,7 @@
 import type { AuthUser } from "../types/auth";
 import {createContext, useContext, useState, useEffect, type ReactNode} from "react";
 import {setApiAccessToken, setAuthTokenUpdater} from "../api/axios";
+import { logoutUser } from "../api/auth.api";
 
 // Auth context type
 interface AuthContextType {
@@ -24,10 +25,15 @@ export function AuthProvider ({children}: AuthProviderProps){
     const[accessToken, setAccessToken] = useState<string | null>(null);
     const[user, setUser] = useState<AuthUser | null>(null);
 
-    const logout =()=>{
-        setAccessToken(null);
-        setUser(null);
-    }
+    const logout = async () => {
+
+        try {
+            await logoutUser();
+        } finally {
+            setAccessToken(null);
+            setUser(null);
+        }
+    };
 
     // React to Axios
     useEffect(()=>{

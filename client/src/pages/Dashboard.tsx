@@ -4,7 +4,7 @@ import {getWallet} from "../api/wallet.api";
 
 function Dashboard(){
 
-    const{user} = useAuth();
+    const{user, logout} = useAuth();
 
     useEffect(()=>{
         const showWallet = async()=>{
@@ -27,6 +27,10 @@ function Dashboard(){
                 const response = await getWallet();
                 console.log(response.data);
             }}>Reload Wallet</button>
+
+            <button onClick={logout}>
+                Logout
+            </button>
             
         </>
     )

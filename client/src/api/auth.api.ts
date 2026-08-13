@@ -9,3 +9,7 @@ type LoginCredentials = {
 export const loginUser = (credentials: LoginCredentials) =>{
     return api.post<LoginResponse>('/auth/login', credentials);
 };
+
+export const logoutUser = () => {
+    return api.post("/auth/logout");
+};

@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import AppError from "../utils/AppError";;
 import { RegisterBody, LoginBody, ChangePasswordBody, ForgotPasswordBody, ResetPasswordBody, RefreshTokenBody} from "../schemas/auth.schema";
-import {registerUser, loginUser, changeMyPassword, forgotPassword, resetPassword, refreshAccessToken, logout} from "../services/auth.service";
+import {registerUser, loginUser, changeMyPassword, forgotPassword, resetPassword, refreshAccessToken, logoutUser} from "../services/auth.service";
 
 export const register = async (req: Request<{}, {}, RegisterBody>, res: Response)=>{
 
@@ -51,7 +51,18 @@ export const refreshMyToken = async(req: Request, res: Response)=>{
     res.status(200).json(refToken);
 }
 
-export const myLogout = async(req: Request<{}, {}, RefreshTokenBody>, res: Response)=>{
-    const logoutReq = await logout(req.body);
-    res.status(200).json(logoutReq);
-}
+export const logout = async (req: Request, res: Response) => {
+
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+        await logoutUser(refreshToken);
+    }
+
+    res.clearCookie("refreshToken");
+
+    return res.status(200).json({
+        success: true,
+        message: "Logout successful"
+    });
+};
