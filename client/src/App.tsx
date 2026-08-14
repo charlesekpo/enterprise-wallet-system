@@ -8,6 +8,7 @@ import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import Transfer from "./pages/Transfer";
+import Transactions from "./pages/Transactions";
 
 function App() {
     return (
@@ -45,6 +46,11 @@ function App() {
                     <Route
                         path="/transfer"
                         element={<Transfer />}
+                    />
+                    
+                    <Route
+                        path="/transactions"
+                        element={<Transactions />}
                     />
 
                 </Route>
