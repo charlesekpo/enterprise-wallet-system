@@ -44,6 +44,12 @@ export interface TransactionFilters {
     status?: TransactionStatus;
 }
 
+export interface TransactionDetailsResponse {
+    success: boolean;
+    message: string;
+    data: Transaction;
+}
+
 export const getTransactions = (filters: TransactionFilters = {}) => {
 
     return api.get<TransactionResponse>(
@@ -53,4 +59,12 @@ export const getTransactions = (filters: TransactionFilters = {}) => {
         }
     );
 
+};
+
+export const getTransactionByReference = (
+    reference: string
+) => {
+    return api.get<TransactionDetailsResponse>(
+        `/api/transactions/${reference}`
+    );
 };

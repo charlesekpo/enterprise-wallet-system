@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
     getTransactions,
     type Transaction,
@@ -219,7 +220,12 @@ function Transactions() {
                                 <tr key={transaction._id}>
 
                                     <td>
-                                        {transaction.reference}
+                                        <Link
+                                            to={`/transactions/${transaction.reference}`}
+                                            className="transaction-reference"
+                                        >
+                                            {transaction.reference}
+                                        </Link>
                                     </td>
 
                                     <td>

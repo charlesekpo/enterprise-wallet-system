@@ -9,6 +9,7 @@ import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import Transfer from "./pages/Transfer";
 import Transactions from "./pages/Transactions";
+import TransactionDetails from "./pages/TransactionDetails";
 
 function App() {
     return (
@@ -47,10 +48,15 @@ function App() {
                         path="/transfer"
                         element={<Transfer />}
                     />
-                    
+
                     <Route
                         path="/transactions"
                         element={<Transactions />}
+                    />
+
+                    <Route
+                        path="/transactions/:reference"
+                        element={<TransactionDetails />}
                     />
 
                 </Route>
