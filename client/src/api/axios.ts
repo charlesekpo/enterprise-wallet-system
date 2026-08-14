@@ -8,9 +8,6 @@ const api = axios.create({
 // Axio's current acces token
 let accessToken: string | null = null;
 
-//Tracks an ongoing refresh
-let refreshPromise: Promise<string> | null = null;
-
 // React -> Axios
 // React calls this whenever its accessToken changes
 export const setApiAccessToken = (token: string | null)=>{

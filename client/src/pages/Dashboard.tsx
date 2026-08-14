@@ -15,7 +15,7 @@ interface Wallet {
 
 function Dashboard() {
 
-    const { user } = useAuth();
+    useAuth();
 
     const [wallet, setWallet] = useState<Wallet | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
