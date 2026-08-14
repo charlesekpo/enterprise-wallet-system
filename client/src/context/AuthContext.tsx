@@ -1,15 +1,19 @@
 import type { AuthUser } from "../types/auth";
 import {createContext, useContext, useState, useEffect, type ReactNode} from "react";
 import {setApiAccessToken, setAuthTokenUpdater} from "../api/axios";
-import { logoutUser } from "../api/auth.api";
+import {logoutUser, refreshAccessToken} from "../api/auth.api";
+import { getProfile } from "../api/user.api";
 
 // Auth context type
 interface AuthContextType {
-    accessToken: string | null,
-    user: AuthUser | null,
-    setAccessToken: (token: string | null) => void,
-    setUser: (user: AuthUser | null) => void,
-    logout: ()=> void
+    accessToken: string | null;
+    user: AuthUser | null;
+    authLoading: boolean;
+
+    setAccessToken: (token: string | null) => void;
+    setUser: (user: AuthUser | null) => void;
+
+    logout: () => Promise<void>;
 }
 
 // create the context
@@ -24,6 +28,52 @@ interface AuthProviderProps{
 export function AuthProvider ({children}: AuthProviderProps){
     const[accessToken, setAccessToken] = useState<string | null>(null);
     const[user, setUser] = useState<AuthUser | null>(null);
+    const [authLoading, setAuthLoading] = useState(true);
+
+    useEffect(() => {
+
+        const restoreSession = async () => {
+
+            try {
+
+                // Get new access token
+                const response =
+                    await refreshAccessToken();
+
+                const { accessToken } =
+                    response.data.data;
+
+                // Update React
+                setAccessToken(accessToken);
+
+                // Immediately update Axios
+                setApiAccessToken(accessToken);
+
+                // Get current user
+                const profileResponse =
+                    await getProfile();
+
+                const user =
+                    profileResponse.data.data;
+
+                // Update React user
+                setUser(user);
+
+            } catch (error) {
+
+                setAccessToken(null);
+                setUser(null);
+
+            } finally {
+
+                setAuthLoading(false);
+
+            }
+        };
+
+        restoreSession();
+
+    }, []);
 
     const logout = async () => {
 
@@ -46,7 +96,7 @@ export function AuthProvider ({children}: AuthProviderProps){
     },[]);
 
     return (<AuthContext.Provider
-        value={{accessToken, user, setAccessToken, setUser, logout}}
+        value={{accessToken, user, authLoading, setAccessToken, setUser, logout}}
     >
        {children} 
     </AuthContext.Provider>);

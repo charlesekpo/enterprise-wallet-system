@@ -13,3 +13,7 @@ export const loginUser = (credentials: LoginCredentials) =>{
 export const logoutUser = () => {
     return api.post("/auth/logout");
 };
+
+export const refreshAccessToken = () => {
+    return api.post("/auth/refresh-token");
+};

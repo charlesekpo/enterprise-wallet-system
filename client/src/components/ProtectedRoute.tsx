@@ -3,12 +3,13 @@ import { useAuth } from "../context/AuthContext";
 
 function ProtectedRoute() {
 
-    const { user } = useAuth();
+    const { user, authLoading } = useAuth();
 
-    console.log("ProtectedRoute user:", user);
+    if (authLoading) {
+        return <div>Loading...</div>;
+    }
 
     if (!user) {
-        console.log("No user — redirecting to login");
         return <Navigate to="/login" replace />;
     }
 

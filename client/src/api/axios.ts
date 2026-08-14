@@ -39,64 +39,51 @@ api.interceptors.request.use((config)=>{
 
 // Response interceptor
 api.interceptors.response.use(
-    // successful response
-    (response)=>{
+
+    // Successful response
+    (response) => {
         return response;
     },
 
-    // error response
-    async (error)=>{
-        // if the error is not 401, we don't handle it here
-        if(error.response?.status !== 401){
-            throw error;
-        }
+    // Failed response
+    async (error) => {
 
-        if(error.config?.url === '/auth/refresh-token'){
-            throw error;
-        }
-
-        if(!refreshPromise){
-
-            // Ask backend for new access token
-            refreshPromise = api
-            .post('/auth/refresh-token')
-            .then((response)=>{
-
-                // extract the new access token
-                const newAccessToken = response.data.data.accessToken;
-
-                // update Axios copy of the access token
-                accessToken = newAccessToken;
-
-                // also update React's copy of the access token
-                if(updateAuthToken){
-                updateAuthToken(newAccessToken);
-
-                return newAccessToken;
-        }
-
-            }).catch((error)=>{
-                accessToken = null;
-                if(updateAuthToken){
-                updateAuthToken(newAccessToken);
-                }
-
-                throw error
-            })
-            .finally(()=>{
-                refreshPromise = null;
-            });
-        } 
-        
-        const newAccessToken = await refreshPromise;
-
-        // get the request that originally failed
         const originalRequest = error.config;
 
-        // replace the old token with the new token
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        // Only handle 401
+        if (error.response?.status !== 401) {
+            throw error;
+        }
 
-        // now send the original request again
+        // Do NOT refresh authentication endpoints
+        if (
+            originalRequest.url === "/auth/login" ||
+            originalRequest.url === "/auth/refresh-token" ||
+            originalRequest.url === "/auth/logout"
+        ) {
+            throw error;
+        }
+
+        // Ask backend for a new access token
+        const response =
+            await api.post("/auth/refresh-token");
+
+        const newAccessToken =
+            response.data.data.accessToken;
+
+        // Update Axios token
+        accessToken = newAccessToken;
+
+        // Update React token
+        if (updateAuthToken) {
+            updateAuthToken(newAccessToken);
+        }
+
+        // Update original request
+        originalRequest.headers.Authorization =
+            `Bearer ${newAccessToken}`;
+
+        // Retry original request
         return api(originalRequest);
     }
 );

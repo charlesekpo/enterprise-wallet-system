@@ -11,39 +11,51 @@ export const transactions = async(userId: string, page: number, limit: number, t
 
     const skip = (page - 1) * limit;
 
-    // get the number of transactions
-    const totalTransactions = await Transaction.countDocuments({
-        wallet: transactionWallet._id
-    });
-
-    // simple math to get the pages, based on the limit selected
-    const paginationPages = Math.ceil(totalTransactions / limit);
-
     const query: Record<string, unknown> = {
         wallet: transactionWallet._id
-    }
+    };
 
-    const statusCheck = ['SUCCESS','FAILED','PENDING','REVERSED'];
-    const typeCheck = ['DEPOSIT','WITHDRAWAL','TRANSFER_IN','TRANSFER_OUT'];
+    const statusCheck = [
+        'SUCCESS',
+        'FAILED',
+        'PENDING',
+        'REVERSED'
+    ];
 
-     if(type && !typeCheck.includes(type)){
-        throw new AppError("Invalid query status",400);
+    const typeCheck = [
+        'DEPOSIT',
+        'WITHDRAWAL',
+        'TRANSFER_IN',
+        'TRANSFER_OUT'
+    ];
+
+    if(type && !typeCheck.includes(type)){
+        throw new AppError("Invalid query type", 400);
     }
 
     if(type){
         query.type = type;
-    };
+    }
 
     if(status && !statusCheck.includes(status)){
-        throw new AppError("Invalid query status",400);
+        throw new AppError("Invalid query status", 400);
     }
 
     if(status){
         query.status = status;
     }
 
-    // get all transactions
-    const allTransactions = await Transaction.find(query).sort({createdAt: -1}).skip(skip).limit(limit);
+    const totalTransactions =
+        await Transaction.countDocuments(query);
+
+    const paginationPages =
+        Math.ceil(totalTransactions / limit);
+
+    const allTransactions = await Transaction
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
 
     return {
             success: true,

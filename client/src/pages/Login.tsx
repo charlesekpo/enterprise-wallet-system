@@ -10,14 +10,29 @@ function Login(){
     const{setUser, setAccessToken} = useAuth();
 
     const navigate = useNavigate();
-    const handleSubmit = async(event: React.FormEvent<HTMLFormElement>)=>{
+    const handleSubmit = async (
+        event: React.FormEvent<HTMLFormElement>
+    ) => {
         event.preventDefault();
-        const response = await loginUser({email, password});
-        const{accessToken, user} = response.data.data;
-        setUser(user);
-        setAccessToken(accessToken);
-        navigate('/dashboard');
-    }
+
+        try {
+            const response = await loginUser({
+                email,
+                password
+            });
+
+            const { accessToken, user } =
+                response.data.data;
+
+            setUser(user);
+            setAccessToken(accessToken);
+
+            navigate("/dashboard");
+
+        } catch (error) {
+            console.log("LOGIN: ERROR", error);
+        }
+    };
     return (
         <form onSubmit={handleSubmit}>
             <input type='email'
